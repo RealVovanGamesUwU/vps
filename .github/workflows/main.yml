@@ -1,0 +1,32 @@
+name: Setup and Start Ngrok Proxy
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Download Ngrok
+      run: |
+        $path = "C:\ngrok.exe"
+        Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+        Expand-Archive ngrok.zip -DestinationPath $env:TEMP
+        Move-Item -Path "$env:TEMP\ngrok.exe" -Destination $path
+      shell: powershell
+
+    - name: Set Ngrok Auth Token
+      run: |
+        $token = "2bRYg4dJ5rOp40MY3ImksbFJxcp_6qLhxUn48xCnPP68UAd6u"
+        .\ngrok.exe authtoken $token
+      working-directory: C:\
+      shell: cmd
+
+    - name: Start Ngrok Proxy
+      run: |
+        .\ngrok.exe http 80
+      working-directory: C:\
+      shell: cmd
